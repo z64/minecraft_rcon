@@ -71,6 +71,13 @@ module Minecraft::RCON
     class Error < Exception
     end
 
+    # Connects to the server at `ip` and `port`, and logs in with `password`
+    def self.connect(ip, port, password)
+      client = new(ip, port)
+      client.login
+      client
+    end
+
     # Creates a new `Client` bound to the given `ip` on `port`.
     def self.new(ip, port)
       new(TCPSocket.new(ip, port))
@@ -93,6 +100,11 @@ module Minecraft::RCON
       response = @socket.read_bytes(Packet, IO::ByteFormat::LittleEndian)
       raise Error.new("Authentication failed") if response.request_id == -1
       response
+    end
+
+    # Closes the connection
+    def close
+      @socket.close
     end
 
     # Logs in to the bound Minecraft server with the given `password`.
