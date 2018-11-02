@@ -18,9 +18,12 @@ dependencies:
 
 ```crystal
 require "minecraft_rcon"
-```
 
-TODO: Write usage instructions here
+client = Minecraft::RCON::Client.connect("ip address", 25565, "password")
+client.execute("kick PixeLInc")
+client.execute("say my work here is done")
+client.close
+```
 
 ## Contributors
 
