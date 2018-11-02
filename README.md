@@ -20,8 +20,8 @@ dependencies:
 require "minecraft_rcon"
 
 client = Minecraft::RCON::Client.connect("ip address", 25565, "password")
-client.execute("kick PixeLInc")
-client.execute("say my work here is done")
+client.kick("PixeLInc")
+client.say("my work here is done")
 client.close
 ```
 
