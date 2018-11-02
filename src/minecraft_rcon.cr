@@ -74,7 +74,7 @@ module Minecraft::RCON
     # Connects to the server at `ip` and `port`, and logs in with `password`
     def self.connect(ip, port, password)
       client = new(ip, port)
-      client.login
+      client.login(password)
       client
     end
 
