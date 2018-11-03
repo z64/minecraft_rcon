@@ -157,7 +157,7 @@ module Minecraft::RCON
     def teleport(player : String, location : Tuple(Float64, Float64, Float64),
                  orientation : Tuple(Float64, Float64))
       x, y, z = location
-      pitch, yar = orientation
+      pitch, yaw = orientation
       execute("tp", x, y, z, pitch, yaw)
     end
 
