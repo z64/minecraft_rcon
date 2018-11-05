@@ -18,6 +18,9 @@ module Minecraft::RCON
     # :nodoc:
     PADDING = Bytes[0, 0]
 
+    # :nodoc:
+    MAX_RESPONSE_SIZE = 1234
+
     # The request ID this packet represents
     getter request_id : Int32
 
@@ -87,6 +90,25 @@ module Minecraft::RCON
     def initialize(@socket : IO)
       @request_id = 0
       @logged_in = false
+
+      @socket_channel = Channel(Packet).new
+      spawn do
+        while true
+          packet = @socket.read_bytes(Packet, IO::ByteFormat::LittleEndian)
+          @socket_channel.send(packet)
+        end
+      end
+    end
+
+    private def read_response
+      buffer = IO::Memory.new
+      while true
+        packet = @socket_channel.receive
+        raise Error.new("Authentication failed") if packet.request_id == -1
+        buffer.write(packet.payload)
+        break if @socket_channel.empty?
+      end
+      buffer.rewind
     end
 
     # Returns the next request ID.
@@ -97,9 +119,7 @@ module Minecraft::RCON
     # Sends a `Packet` to the socket, and returns the response.
     private def send(packet : Packet)
       @socket.write_bytes(packet, IO::ByteFormat::LittleEndian)
-      response = @socket.read_bytes(Packet, IO::ByteFormat::LittleEndian)
-      raise Error.new("Authentication failed") if response.request_id == -1
-      response
+      read_response
     end
 
     # Closes the connection

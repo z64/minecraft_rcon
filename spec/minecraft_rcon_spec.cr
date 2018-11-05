@@ -57,6 +57,22 @@ describe Minecraft::RCON do
       end
     end
 
+    it "buffers multiple frames" do
+      with_server do |client, server|
+        spawn do
+          request = server.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
+          server.write_bytes(Minecraft::RCON::Packet.new(1, :response, Bytes.empty))
+
+          request = server.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
+          request.should eq Minecraft::RCON::Packet.new(2, :command, "list")
+          server.write_bytes(Minecraft::RCON::Packet.new(2, :response, "first payload"))
+          server.write_bytes(Minecraft::RCON::Packet.new(2, :response, "second payload"))
+        end
+        client.login("sethhax4life")
+        client.execute("list").to_s.should eq "first payloadsecond payload"
+      end
+    end
+
     it "raises when authentication fails" do
       with_server do |client, server|
         spawn do
