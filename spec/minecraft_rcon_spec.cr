@@ -19,7 +19,7 @@ describe Minecraft::RCON do
         0, 0]        # padding
 
       io = IO::Memory.new(payload)
-      packet = io.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
+      packet = Minecraft::RCON::Packet.from_io(io, IO::ByteFormat::LittleEndian)
       packet.request_id.should eq 1
       packet.type.should eq Minecraft::RCON::Packet::Type::Command
       packet.payload.should eq Bytes[3, 4, 5, 6]
@@ -28,8 +28,8 @@ describe Minecraft::RCON do
     it "can be written to an IO" do
       packet = Minecraft::RCON::Packet.new(1, :login, "pass")
       io = IO::Memory.new
-      io.write_bytes(packet, IO::ByteFormat::LittleEndian)
-      bytes = io.buffer.to_slice(io.size)
+      packet.to_io(io, IO::ByteFormat::LittleEndian)
+      bytes = io.to_slice
       bytes.should eq Bytes[
         14, 0, 0, 0,
         1, 0, 0, 0,
@@ -48,11 +48,11 @@ describe Minecraft::RCON do
         end
 
         request = server.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
-        request.should eq Minecraft::RCON::Packet.new(1, :login, "password".to_slice)
+        request.should eq Minecraft::RCON::Packet.new(1, :login, "password")
         server.write_bytes(Minecraft::RCON::Packet.new(1, :response, Bytes.empty))
 
         request = server.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
-        request.should eq Minecraft::RCON::Packet.new(2, :command, "command".to_slice)
+        request.should eq Minecraft::RCON::Packet.new(2, :command, "command")
         server.write_bytes(Minecraft::RCON::Packet.new(2, :response, Bytes.empty))
       end
     end
@@ -61,7 +61,7 @@ describe Minecraft::RCON do
       with_server do |client, server|
         spawn do
           request = server.read_bytes(Minecraft::RCON::Packet, IO::ByteFormat::LittleEndian)
-          request.should eq Minecraft::RCON::Packet.new(1, :login, "sethhax4life".to_slice)
+          request.should eq Minecraft::RCON::Packet.new(1, :login, "sethhax4life")
           server.write_bytes(Minecraft::RCON::Packet.new(-1, :response, Bytes.empty))
         end
 
