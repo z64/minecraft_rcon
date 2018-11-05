@@ -200,5 +200,10 @@ module Minecraft::RCON
     def locate(structure : String)
       execute("locate", structure)
     end
+
+    # Summons the respective entity at the given position
+    def summon(entity_name : String, x : Float64, y : Float64, z : Float64)
+      execute("summon", x, y, z)
+    end
   end
 end
