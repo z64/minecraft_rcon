@@ -94,9 +94,13 @@ module Minecraft::RCON
       @request_id += 1
     end
 
-    # Sends a `Packet` to the socket, and returns the response.
+    # Sends a `Packet` to the socket
     private def send(packet : Packet)
       @socket.write_bytes(packet, IO::ByteFormat::LittleEndian)
+    end
+
+    # Receives a `Packet` from the socket
+    private def receive
       response = @socket.read_bytes(Packet, IO::ByteFormat::LittleEndian)
       raise Error.new("Authentication failed") if response.request_id == -1
       response
@@ -111,6 +115,7 @@ module Minecraft::RCON
     def login(password)
       packet = Packet.new(next_request_id, :login, password)
       send(packet)
+      receive
       @logged_in = true
     end
 
@@ -120,6 +125,7 @@ module Minecraft::RCON
       raise Error.new("You must be logged in before executing commands!") unless @logged_in
       packet = Packet.new(next_request_id, :command, command)
       send(packet)
+      receive
     end
 
     # :ditto:
