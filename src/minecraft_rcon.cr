@@ -106,6 +106,7 @@ module Minecraft::RCON
         packet = @socket_channel.receive
         raise Error.new("Authentication failed") if packet.request_id == -1
         buffer.write(packet.payload)
+        sleep 50.milliseconds
         break if @socket_channel.empty?
       end
       buffer.rewind
