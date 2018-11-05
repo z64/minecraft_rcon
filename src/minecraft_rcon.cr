@@ -155,15 +155,13 @@ module Minecraft::RCON
     end
 
     # Teleports one player to a specific position
-    def teleport(player : String, location : Tuple(Float64, Float64, Float64))
-      execute("tp", *location)
+    def teleport(player : String, x : Float64, y : Float64, z : Float64)
+      execute("tp", x, y, z)
     end
 
     # Teleports one player to a specific position, with orientation
-    def teleport(player : String, location : Tuple(Float64, Float64, Float64),
-                 orientation : Tuple(Float64, Float64))
-      x, y, z = location
-      pitch, yaw = orientation
+    def teleport(player : String, x : Float64, y : Float64, z : Float64,
+                 pitch : Float64, yaw : Float64)
       execute("tp", x, y, z, pitch, yaw)
     end
 
